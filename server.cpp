@@ -46,7 +46,7 @@ void respondError(int status, String message)
 
 void sendIR(AcState state)
 {
-  Serial.print(">> Pushing state : enabled=");
+  Serial.print("> Sending state via IR // enabled=");
   Serial.print(state.enabled ? "true" : "false");
   Serial.print("; temp=");
   Serial.print(state.temp);
@@ -54,6 +54,39 @@ void sendIR(AcState state)
   Serial.print(state.mode);
   Serial.print("; fan=");
   Serial.println(state.fan);
+
+  int num = 0x50000000;
+
+  auto addBitFieldVal = [=](int val, int pos){
+    return num | (val << pos);
+  };
+
+  int mode = 0;
+  for(int i = 0; i < modeMapLen; i++)
+  {
+    if(modeMap[i] == state.mode)
+      mode = i;
+  }
+  num = addBitFieldVal(mode, 0);
+  Serial.println("Mode: " + String(mode) + " > " + String(num));
+
+  if(state.enabled)
+    num = addBitFieldVal(1, 3);
+  Serial.println("Enabled: " + String(num));
+
+  int fan = 0;
+  for(int i = 0; i < fanMapLen; i++)
+  {
+    if(fanMap[i] == state.fan)
+      fan = i;
+  }
+  num = addBitFieldVal(fan, 4);
+  Serial.println("Fan: " + String(fan) + " > " + String(num));
+
+  num = addBitFieldVal(state.temp - 16, 8);
+  Serial.println("Temp: " + String(num));
+
+  Serial.println("IR Data: " + String(num));
 }
 
 // ------------------------- #MARKER EEPROM -------------------------
@@ -99,13 +132,13 @@ void handleSetState()
     auto includes = [&](String name, String val)
     {
       if (name == "mode")
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < modeMapLen; i++)
         {
           if (modeMap[i] == val)
             return true;
         }
       else if (name == "fan")
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < fanMapLen; i++)
         {
           if (fanMap[i] == val)
             return true;

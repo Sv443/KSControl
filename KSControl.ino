@@ -4,12 +4,14 @@
 void setup()
 {
   Serial.begin(SERIAL_BAUD);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
 
   Serial.println();
+  Serial.println("KSControl v0.1.0");
   Serial.print("Connecting to WiFi");
 
-  while (WiFi.status() != WL_CONNECTED)
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+
+  while(WiFi.status() != WL_CONNECTED)
   {
     delay(500);
     Serial.print(".");

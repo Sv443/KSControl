@@ -1,3 +1,13 @@
 {
-    "editor.formatOnSave": false
+    "editor.formatOnSave": false,
+    "files.associations": {
+        "*.dmuploadcookie": "xml",
+        "motd": "plaintext",
+        "functional": "cpp",
+        "system_error": "cpp",
+        "type_traits": "cpp",
+        "xlocmon": "cpp",
+        "xlocnum": "cpp",
+        "xtr1common": "cpp"
+    }
 }
