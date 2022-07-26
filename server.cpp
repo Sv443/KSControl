@@ -1,6 +1,10 @@
 #include "server.h"
 
-struct AcState state = {};
+// vars
+
+ESP8266WebServer server(SERVER_PORT);
+
+struct AcState state = {true, 20, "AUTO", "AUTO"};
 
 int modeMapLen = 5;
 String modeMap[5] = {"AUTO", "COOL", "DRY", "FAN", "HEAT"};
@@ -9,16 +13,12 @@ String fanMap[4] = {"AUTO", "LOW", "MEDIUM", "HIGH"};
 
 // ------------------------- #MARKER server -------------------------
 
-ESP8266WebServer server(SERVER_PORT);
-
+// routes
 void handleSetState();
 
 void initServer()
 {
-  state.enabled = true;
-  state.temp = 20;
-  state.mode = "AUTO";
-  state.fan = "AUTO";
+  EEPROM.begin(EEPROM_SIZE);
 
   server.on("/state", handleSetState);
 
@@ -44,6 +44,38 @@ void respondError(int status, String message)
 
 // ------------------------- #MARKER IR -------------------------
 
+int getIRData(AcState state)
+{
+  int num = 0x50000000;
+
+  auto addBitFieldVal = [&](int n, int val, int pos){
+    return n | (val << pos);
+  };
+
+  int mode = 0;
+  for(int i = 0; i < modeMapLen; i++)
+    if(modeMap[i] == state.mode)
+      mode = i;
+  num = addBitFieldVal(num, mode, 0);
+  // Serial.println("Mode: " + String(mode) + " > " + String(num));
+
+  if(state.enabled)
+    num = addBitFieldVal(num, 1, 3);
+  // Serial.println("Enabled: " + String(num));
+
+  int fan = 0;
+  for(int i = 0; i < fanMapLen; i++)
+    if(fanMap[i] == state.fan)
+      fan = i;
+  num = addBitFieldVal(num, fan, 4);
+  // Serial.println("Fan: " + String(fan) + " > " + String(num));
+
+  num = addBitFieldVal(num, state.temp - 16, 8);
+  // Serial.println("Temp: " + String(num));
+
+  return num;
+}
+
 void sendIR(AcState state)
 {
   Serial.print("> Sending state via IR // enabled=");
@@ -55,36 +87,7 @@ void sendIR(AcState state)
   Serial.print("; fan=");
   Serial.println(state.fan);
 
-  int num = 0x50000000;
-
-  auto addBitFieldVal = [=](int val, int pos){
-    return num | (val << pos);
-  };
-
-  int mode = 0;
-  for(int i = 0; i < modeMapLen; i++)
-  {
-    if(modeMap[i] == state.mode)
-      mode = i;
-  }
-  num = addBitFieldVal(mode, 0);
-  Serial.println("Mode: " + String(mode) + " > " + String(num));
-
-  if(state.enabled)
-    num = addBitFieldVal(1, 3);
-  Serial.println("Enabled: " + String(num));
-
-  int fan = 0;
-  for(int i = 0; i < fanMapLen; i++)
-  {
-    if(fanMap[i] == state.fan)
-      fan = i;
-  }
-  num = addBitFieldVal(fan, 4);
-  Serial.println("Fan: " + String(fan) + " > " + String(num));
-
-  num = addBitFieldVal(state.temp - 16, 8);
-  Serial.println("Temp: " + String(num));
+  int irData = getIRData(state);
 
   Serial.println("IR Data: " + String(num));
 }
@@ -93,12 +96,16 @@ void sendIR(AcState state)
 
 void setState(AcState state)
 {
-
+  EEPROM.put(EADDR_STATE, state);
+  if(!EEPROM.commit())
+    Serial.println("---- Error while updating local state in EEPROM ----");
 }
 
 AcState getState()
 {
-
+  struct AcState st;
+  EEPROM.get(EADDR_STATE, st);
+  return st;
 }
 
 
@@ -119,40 +126,34 @@ void handleSetState()
 
   auto argValid = [&](String name)
   {
-    if (!hasArg(name))
+    if(!hasArg(name))
       return false;
 
     String val = server.arg(name);
 
-    auto isBetween = [&](int val, int min, int max)
-    {
+    auto isBetween = [&](int val, int min, int max){
       return val >= min && val <= max;
     };
 
-    auto includes = [&](String name, String val)
-    {
-      if (name == "mode")
-        for (int i = 0; i < modeMapLen; i++)
-        {
-          if (modeMap[i] == val)
+    auto includes = [&](String name, String val){
+      if(name == "mode")
+        for(int i = 0; i < modeMapLen; i++)
+          if(modeMap[i] == val)
             return true;
-        }
-      else if (name == "fan")
-        for (int i = 0; i < fanMapLen; i++)
-        {
-          if (fanMap[i] == val)
+      else if(name == "fan")
+        for(int i = 0; i < fanMapLen; i++)
+          if(fanMap[i] == val)
             return true;
-        }
       return false;
     };
 
-    if (name == "enabled" && (val == "true" || val == "false"))
+    if(name == "enabled" && (val == "true" || val == "false"))
       return true;
-    else if (name == "temp" && isBetween(val.toInt(), 16, 30))
+    else if(name == "temp" && isBetween(val.toInt(), 16, 30))
       return true;
-    else if (name == "mode" && includes("mode", val))
+    else if(name == "mode" && includes("mode", val))
       return true;
-    else if (name == "fan" && includes("fan", val))
+    else if(name == "fan" && includes("fan", val))
       return true;
 
     return false;
@@ -163,30 +164,30 @@ void handleSetState()
     return respondError(400, "Argument \\\"" + name + "\\\" is invalid. Please refer to the documentation.");
   };
 
-  if (hasArg("enabled"))
+  if(hasArg("enabled"))
   {
-    if (argValid("enabled"))
+    if(argValid("enabled"))
       state.enabled = server.arg("enabled") == "true";
     else
       argInvalid("enabled");
   }
-  if (hasArg("temp"))
+  if(hasArg("temp"))
   {
-    if (argValid("temp"))
+    if(argValid("temp"))
       state.temp = server.arg("temp").toInt();
     else
       argInvalid("temp");
   }
-  if (hasArg("mode"))
+  if(hasArg("mode"))
   {
-    if (argValid("mode"))
+    if(argValid("mode"))
       state.mode = server.arg("mode");
     else
       argInvalid("mode");
   }
-  if (hasArg("fan"))
+  if(hasArg("fan"))
   {
-    if (argValid("fan"))
+    if(argValid("fan"))
       state.fan = server.arg("fan");
     else
       argInvalid("fan");
