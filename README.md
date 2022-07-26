@@ -1,67 +1,103 @@
 <div align="center" style="text-align:center;">
 
-## KSControl
+# KSControl
 ### WiFi-controlled and autonomous gadget to turn on and off the Klarstein NB series A/C
 
 </div><br>
 
 ### Disclaimer:
-#### This was only tested with the NB9 model but it'll most likely work with other NB series aircons
+#### This was only tested with the NB9 model but it'll probably work with other NB series aircons
 
-<br>
+<br><br>
 
-### Parts list:
+## Parts list:
 - ESP8266 board
 - Infrared LED
 <!-- TODO: maybe transistor + series resistor? -->
 
 <br>
 
-### Software installation:
+## Software installation:
 
-1. Set up your ESP board in the Arduino IDE
+1. Set up the ESP board and firmware in the Arduino IDE ([follow this guide](https://randomnerdtutorials.com/how-to-install-esp8266-board-arduino-ide/))
 2. Clone or download and extract this project and open it with the Arduino IDE
-3. Rename the file `settings.h.template` to `settings.h` and edit it to your liking
-4. Upload the sketch to the ESP board
+3. Install this library in the library manager (Sketch > Include library): `ESP_EEPROM`
+4. Rename the file `settings.h.template` to `settings.h`, enter your WiFi's credentials and edit the other settings to your liking
+5. Upload the sketch to the ESP board with the arrow button at the top
+6. Open the serial monitor ( <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd> ) to view information and a live log
 
 <br>
 
-### Schematic:
+## Schematic:
 Coming soon™
 
 <br>
 
-### Server:
-This sketch spins up an HTTP server on your ESP's WiFi.  
-It can be used to remote control the A/C from anywhere.  
-Use the following routes to talk to the ESP.  
+## Server:
+KSControl spins up an HTTP server on your ESP's WiFi.  
+It can be used to remote control the A/C from within your network.  
+To access it from anywhere, you currently need to set up a VPN connection to your network.  
+  
+Use the following routes to talk to KSControl, using its IP address displayed in the Arduino IDE serial monitor.  
 
 > ### POST `/state`
-> Since all control data (temp, mode, fan speed, etc) are all simultaneously transmitted whenever only one value changes, the ESP needs to keep track of the current state of the A/C.  
-> This is done through this route. Whenever the state updates, it is sent to the A/C unit via infrared.  
+> All control data (temp, mode, etc) needs to be simultaneously transmitted to the A/C whenever only one value changes, so the ESP keeps track of the current state of the A/C.  
+> If a request is sent to this route, the internal state gets updated and sent to the A/C unit via infrared, just like the remote control would.  
 >   
-> Some values depend on your A/C model's capabilities (some can't heat for example) and will just not influence the actual A/C's state.  
-> Note that the ESP's state will be updated with whatever you throw at it though!  
+> Some values depend on your A/C model's capabilities (some can't heat for example) and will not influence the actual A/C unit's state.  
+> However the ESP's state will be updated with whatever you throw at it, so do some validation yourself if needed.  
 >   
-> To update the state with new values, send a POST request to this route with the following JSON data:
+> To update the state with new values, send a POST request to this route with the following URL parameters.  
+> For example: `/state?enabled=true&mode=COOL&temp=18`
 > 
-> ```jsonc
+> | Key | Type | Possible values |
+> | :-- | :-- | :-- |
+> | enabled | boolean | true, false |
+> | temp | number | 16-30 °C |
+> | mode | string | AUTO, COOL, DRY, FAN, HEAT |
+> | fan | string | AUTO, LOW, MEDIUM, HIGH |
+>   
+> This route returns a JSON object that informs you of the success:
+> ```json
 > {
->     "enabled": true, // used to turn the A/C on or off
->     "temp": 20,      // can be 16-30 °C
->     "mode": "AUTO",  // can be AUTO, COOL, DRY, FAN or HEAT
->     "fan": "AUTO",   // can be AUTO, LOW, MEDIUM, HIGH
+>   "error": false,
+>   "message": "Successfully updated the state"
 > }
 > ```
 
 <br>
 
 > ### GET `/state`
-> This route returns the current state that's set in the ESP.  
-> The returned JSON object has the same structure as in [POST `/state`](#post-state)  
-> Exception being when no state update has been received by the ESP yet, then it will return an empty object.  
+> This route returns the current state that's set in the ESP as a JSON object.  
+> When no state update has been received by the ESP yet, it will return an empty object.  
 >   
-> If an error occurs, the properties `error` (boolean) and `message` (string) will appear.
+> Sadly the ESP's state and the actual A/C unit's state can differ, as someone can use the remote or press the buttons on the unit to change its state without the ESP knowing of it.  
+> But if you send a request to the [POST /state](#post-state) endpoint with all parameters set, you will make the states consistent again.  
+>   
+> The returned data could look like this:
+> ```json
+> {
+>   "error": false,
+>   "state": {
+>     "enabled": true,
+>     "temp": 20,
+>     "mode": "COOL",
+>     "fan": "HIGH"
+>   }
+> }
+> ```
+
+<br>
+
+### Errors
+Client errors have the HTTP response codes 4xx, server errors have the codes 5xx.  
+Additionally, KSControl will return a JSON object looking like this, informing you what the problem is:
+```json
+{
+  "error": true,
+  "message": "Something went wrong"
+}
+```
 
 <br><br><br>
 

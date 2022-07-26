@@ -1,2 +1,10 @@
+// !!!
+// Make sure to protect this file adequately
+// !!!
+
 #define WIFI_SSID "WiFi_name_here"
 #define WIFI_PASS "WiFi_password_here"
+
+#define SERVER_PORT 80
+
+#define SERIAL_BAUD 115200
