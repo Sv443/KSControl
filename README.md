@@ -1,7 +1,7 @@
 <div align="center" style="text-align:center;">
 
 # KSControl
-### WiFi-controlled and autonomous gadget to turn on and off the Klarstein NB series A/C
+### WiFi-controlled and autonomous gadget to control the Klarstein NB series A/C
 
 </div><br>
 
