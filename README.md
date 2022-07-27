@@ -10,15 +10,27 @@
 
 <br><br>
 
+### Table of content:
+
+- [Parts list](#parts-list)
+- [Software installation](#software-installation)
+- [Hardware installation](#hardware-installation)
+  - [Schematic](#schematic)
+- [Server](#server)
+  - [Errors](#errors)
+
+<br><br>
+
 ## Parts list:
-- ESP8266 board
-- Infrared LED
-<!-- TODO: maybe transistor + series resistor? -->
+- ESP8266 board (or other ESP)
+- Infrared LED (100mA, ~1.5V)
+- Generic npn transistor
+- 30-45 Ω LED resistor (3x 100Ω in parallel or 4x 10Ω in series)
+- 1 kΩ transistor resistor
 
 <br>
 
 ## Software installation:
-
 1. Set up the ESP board and firmware in the Arduino IDE ([follow this guide](https://randomnerdtutorials.com/how-to-install-esp8266-board-arduino-ide/))
 2. Clone or download and extract this project and open it with the Arduino IDE
 3. Install this library in the library manager (Sketch > Include library): `ESP_EEPROM`
@@ -28,15 +40,18 @@
 
 <br>
 
-## Schematic:
-Coming soon™
+## Hardware installation:
+Just solder everything together lol
+
+### Schematic:
+[![schematic image](./resources/Schematic/Schematic.svg)](./resources/Schematic/Schematic.svg)
 
 <br>
 
 ## Server:
 KSControl spins up an HTTP server on your ESP's WiFi.  
 It can be used to remote control the A/C from within your network.  
-To access it from anywhere, you currently need to set up a VPN connection to your network.  
+To access it from anywhere, you can either set up a VPN connection to your network, host a reverse proxy like nginx on a Raspberry Pi, or forward the port in your router's configuration (insecure, so not recommended!).  
   
 Use the following routes to talk to KSControl, using its IP address displayed in the Arduino IDE serial monitor.  
 
