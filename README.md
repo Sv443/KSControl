@@ -3,10 +3,12 @@
 # KSControl
 ### WiFi-controlled and autonomous gadget to control the Klarstein NB series A/C
 
-</div><br>
+<br>
 
-### Disclaimer:
-#### This was only tested with the NB9 model but it'll probably work with other NB series aircons
+##### Disclaimer:
+##### This was only tested with the NB9 model but it'll probably work with other NB series aircons
+
+</div>
 
 <br><br>
 
@@ -26,12 +28,12 @@
 ## Software installation:
 1. Set up the ESP board and firmware in the Arduino IDE ([follow this guide](https://randomnerdtutorials.com/how-to-install-esp8266-board-arduino-ide/))
 2. Clone or download and extract this project and open it with the Arduino IDE
-3. Install this library in the library manager (Sketch > Include library): `ESP_EEPROM`
+3. Install the following library in the library manager (Sketch > Include library): `ESP_EEPROM` by j-watson
 4. Rename the file `settings.h.template` to `settings.h`, enter your WiFi's credentials and edit the other settings to your liking
 5. Upload the sketch to the ESP board with the arrow button at the top
 6. Open the serial monitor ( <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd> ) to view information and a live log
 
-<br>
+<br><br><br>
 
 ## Hardware installation:
 
@@ -41,6 +43,8 @@
 - Generic npn transistor
 - 30-45 Ω LED resistor (3x 100Ω in parallel or 4x 10Ω in series)
 - 1 kΩ transistor resistor
+
+<br>
 
 ### Schematic:
 <a href="./resources/Schematic/Schematic.svg"><img alt="schematic image" src="./resources/Schematic/Schematic.svg" height="400" /></a>
@@ -53,6 +57,8 @@ It can be used to remote control the A/C from within your network.
 To access it from anywhere, you can either set up a VPN connection to your network, host a reverse proxy like nginx on a Raspberry Pi, or forward the port in your router's configuration (insecure, so not recommended!).  
   
 Use the following routes to talk to KSControl, using its IP address displayed in the Arduino IDE serial monitor.  
+
+<br>
 
 > ### POST `/state`
 > All control data (temp, mode, etc) needs to be simultaneously transmitted to the A/C whenever only one value changes, so the ESP keeps track of the current state of the A/C.  
