@@ -17,6 +17,8 @@
   - [Parts list](#parts-list)
   - [Schematic](#schematic)
 - [Server](#server)
+  - [Set state](#post-state)
+  - [Get state](#get-state)
   - [Errors](#errors)
 
 <br><br><br>
