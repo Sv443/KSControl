@@ -44,7 +44,7 @@
 Just solder everything together lol
 
 ### Schematic:
-[![schematic image](./resources/Schematic/Schematic.svg)](./resources/Schematic/Schematic.svg)
+<a href="./resources/Schematic/Schematic.svg"><img alt="schematic image" src="./resources/Schematic/Schematic.svg" height="400" /></a>
 
 <br>
 
