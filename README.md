@@ -12,23 +12,14 @@
 
 ### Table of content:
 
-- [Parts list](#parts-list)
 - [Software installation](#software-installation)
 - [Hardware installation](#hardware-installation)
+  - [Parts list](#parts-list)
   - [Schematic](#schematic)
 - [Server](#server)
   - [Errors](#errors)
 
-<br><br>
-
-## Parts list:
-- ESP8266 board (or other ESP)
-- Infrared LED (100mA, ~1.5V)
-- Generic npn transistor
-- 30-45 Ω LED resistor (3x 100Ω in parallel or 4x 10Ω in series)
-- 1 kΩ transistor resistor
-
-<br>
+<br><br><br>
 
 ## Software installation:
 1. Set up the ESP board and firmware in the Arduino IDE ([follow this guide](https://randomnerdtutorials.com/how-to-install-esp8266-board-arduino-ide/))
@@ -41,12 +32,18 @@
 <br>
 
 ## Hardware installation:
-Just solder everything together lol
+
+### Parts list:
+- ESP8266 board (or other ESP)
+- Infrared LED (100mA, ~1.5V)
+- Generic npn transistor
+- 30-45 Ω LED resistor (3x 100Ω in parallel or 4x 10Ω in series)
+- 1 kΩ transistor resistor
 
 ### Schematic:
 <a href="./resources/Schematic/Schematic.svg"><img alt="schematic image" src="./resources/Schematic/Schematic.svg" height="400" /></a>
 
-<br>
+<br><br><br>
 
 ## Server:
 KSControl spins up an HTTP server on your ESP's WiFi.  
