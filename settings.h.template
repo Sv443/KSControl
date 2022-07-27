@@ -2,9 +2,16 @@
 // Make sure to protect this file adequately
 // !!!
 
+
+// Your WiFi settings:
 #define WIFI_SSID "WiFi_name_here"
 #define WIFI_PASS "WiFi_password_here"
 
-#define SERVER_PORT 80
+// GPIO pin number of the pin that's attached to the transistor's base
+// Look up your ESP board's GPIO pin mapping if there's only digital pins (D1, ...) printed on the silkscreen
+#define TRANSISTOR_PIN 2
 
+// HTTP server port (default 80)
+#define SERVER_PORT 80
+// Serial monitor baud rate (default 115200)
 #define SERIAL_BAUD 115200
