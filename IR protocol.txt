@@ -8,7 +8,7 @@
 | 
 | Temp: 0b = 16°C .. 14b = 30°C
 | Fan:  0b = Auto, 1b = Low, 2b = Medium, 3b = High
-| Mode: 8b = Auto, 9b = Cool, 10b = Dry, 11b = Fan, 12b = Heat
+| Mode: 0b = Auto, 1b = Cool, 2b = Dry, 3b = Fan, 4b = Heat
 
 
 |> IR Details:

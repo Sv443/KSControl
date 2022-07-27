@@ -89,7 +89,7 @@ void sendIR(AcState state)
 
   int irData = getIRData(state);
 
-  Serial.println("IR Data: " + String(num));
+  Serial.println("IR Data: " + String(irData));
 }
 
 // ------------------------- #MARKER EEPROM -------------------------
@@ -113,15 +113,28 @@ AcState getState()
 
 void handleSetState()
 {
-  if (server.args() < 1)
-  {
-    respondError(400, "Please provide URL parameters");
-    return;
-  }
+  if(server.args() < 1)
+    return respondError(400, "Please provide URL parameters");
 
   auto hasArg = [&](String name)
   {
     return server.hasArg(name);
+  };
+
+  auto isBetween = [&](int val, int min, int max){
+    return val >= min && val <= max;
+  };
+
+  auto includes = [&](String name, String val){
+    if(name == "mode")
+      for(int i = 0; i < modeMapLen; i++)
+        if(modeMap[i] == val)
+          return true;
+    else if(name == "fan")
+      for(int i = 0; i < fanMapLen; i++)
+        if(fanMap[i] == val)
+          return true;
+    return false;
   };
 
   auto argValid = [&](String name)
@@ -130,22 +143,6 @@ void handleSetState()
       return false;
 
     String val = server.arg(name);
-
-    auto isBetween = [&](int val, int min, int max){
-      return val >= min && val <= max;
-    };
-
-    auto includes = [&](String name, String val){
-      if(name == "mode")
-        for(int i = 0; i < modeMapLen; i++)
-          if(modeMap[i] == val)
-            return true;
-      else if(name == "fan")
-        for(int i = 0; i < fanMapLen; i++)
-          if(fanMap[i] == val)
-            return true;
-      return false;
-    };
 
     if(name == "enabled" && (val == "true" || val == "false"))
       return true;
@@ -169,30 +166,31 @@ void handleSetState()
     if(argValid("enabled"))
       state.enabled = server.arg("enabled") == "true";
     else
-      argInvalid("enabled");
+      return argInvalid("enabled");
   }
   if(hasArg("temp"))
   {
     if(argValid("temp"))
       state.temp = server.arg("temp").toInt();
     else
-      argInvalid("temp");
+      return argInvalid("temp");
   }
   if(hasArg("mode"))
   {
     if(argValid("mode"))
       state.mode = server.arg("mode");
     else
-      argInvalid("mode");
+      return argInvalid("mode");
   }
   if(hasArg("fan"))
   {
     if(argValid("fan"))
       state.fan = server.arg("fan");
     else
-      argInvalid("fan");
+      return argInvalid("fan");
   }
 
+  setState(state);
   sendIR(state);
 
   respond(200, "{\"message\":\"Success\"}");
