@@ -1,5 +1,5 @@
-#include "server.h"
 #include "settings.h"
+#include "server.h"
 
 void setup()
 {

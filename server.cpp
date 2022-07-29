@@ -78,14 +78,11 @@ int getIRData(AcState state)
 
 void sendIR(AcState state)
 {
-  Serial.print("> Sending state via IR // enabled=");
-  Serial.print(state.enabled ? "true" : "false");
-  Serial.print("; temp=");
-  Serial.print(state.temp);
-  Serial.print("; mode=");
-  Serial.print(state.mode);
-  Serial.print("; fan=");
-  Serial.println(state.fan);
+  Serial.print("> Sending state via IR // ")
+  Serial.print("enabled=" + (state.enabled ? "true" : "false"));
+  Serial.print("; temp=" + String(state.temp));
+  Serial.print("; mode=" + state.mode);
+  Serial.println("; fan=" + state.fan);
 
   int irData = getIRData(state);
 
@@ -97,8 +94,9 @@ void sendIR(AcState state)
 void setState(AcState state)
 {
   EEPROM.put(EADDR_STATE, state);
+
   if(!EEPROM.commit())
-    Serial.println("---- Error while updating local state in EEPROM ----");
+    Serial.println("\n---- Error while updating local state in EEPROM ----\n");
 }
 
 AcState getState()
@@ -107,7 +105,6 @@ AcState getState()
   EEPROM.get(EADDR_STATE, st);
   return st;
 }
-
 
 // ------------------------- #MARKER routes -------------------------
 
