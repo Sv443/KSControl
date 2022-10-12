@@ -31,7 +31,7 @@
 3. Install the following library in the library manager (Sketch > Include library): `ESP_EEPROM` by j-watson
 4. Rename the file `settings.h.template` to `settings.h`, enter your WiFi's credentials and edit the other settings to your liking
 5. Upload the sketch to the ESP board with the arrow button at the top
-6. Open the serial monitor ( <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd> ) to view information and a live log
+6. Open the serial monitor ( <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd> ) to view information and a live log (make sure the BAUD rate is set to 115200)
 
 <br><br><br>
 
@@ -44,6 +44,8 @@
 - 30-45 Ω LED resistor (3x 100Ω in parallel or 4x 10Ω in series)
 - 1 kΩ transistor resistor
 
+(resistor values are wrong, TODO: correct them lol)
+
 <br>
 
 ### Schematic:
@@ -54,7 +56,7 @@
 ## Server:
 KSControl spins up an HTTP server on your ESP's WiFi.  
 It can be used to remote control the A/C from within your network.  
-To access it from anywhere, you can either set up a VPN connection to your network, host a reverse proxy like nginx on a Raspberry Pi, or forward the port in your router's configuration (insecure, so not recommended!).  
+To access it from anywhere, you can either set up a VPN connection to your network, host a reverse proxy like nginx on a Raspberry Pi, or forward the TCP port 80 in your router's configuration (if you're doing this, make sure your ESP is assigned a static IP in your router's interface).  
   
 Use the following routes to talk to KSControl, using its IP address displayed in the Arduino IDE serial monitor.  
 
@@ -73,7 +75,7 @@ Use the following routes to talk to KSControl, using its IP address displayed in
 > | Key | Type | Possible values |
 > | :-- | :-- | :-- |
 > | enabled | boolean | true, false |
-> | temp | number | 16-30 °C |
+> | temp | number | 16-30 (in °C) |
 > | mode | string | AUTO, COOL, DRY, FAN, HEAT |
 > | fan | string | AUTO, LOW, MEDIUM, HIGH |
 >   
